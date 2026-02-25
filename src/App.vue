@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-import BowlingRandomizer from '@/components/BowlingRandomizer.vue'
+  import BowlingRandomizer from '@/components/BowlingRandomizer.vue'
 </script>
 
 <style>
