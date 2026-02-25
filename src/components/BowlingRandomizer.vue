@@ -8,7 +8,7 @@
     </div>
 
     <!-- Player Selection -->
-    <v-card class="mb-5" color="surface-variant" elevation="0" rounded="xl">
+    <v-card class="mb-5" color="surface" elevation="2" rounded="xl">
       <v-card-text class="pa-4">
         <div class="text-overline text-medium-emphasis mb-3">Spieler auswählen</div>
         <div class="d-flex flex-wrap gap-2 mb-4">
@@ -105,7 +105,7 @@
         <template v-if="lastMode === 'single'">
           <v-card :color="lastAction === 'grabgame' ? 'amber-darken-4' : 'surface-variant'" elevation="0" rounded="xl">
             <v-card-text class="pa-4">
-              <div class="d-flex align-center mb-3">
+              <div class="d-flex align-center justify-center mb-3">
                 <span class="text-h6 mr-2">{{ lastAction === 'grabgame' ? '💀' : (singleLane === 'left' ? '⬅️' : '➡️')
                 }}</span>
                 <div>
