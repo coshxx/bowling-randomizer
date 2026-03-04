@@ -79,7 +79,7 @@
       block
       class="mb-3 py-4"
       color="teal-darken-1"
-      :disabled="selectedPlayers.length < 2 || selectedPlayers.length % 2 !== 0"
+      :disabled="selectedPlayers.length < 2"
       :loading="isAnimating === 'teamgame'"
       rounded="xl"
       size="x-large"
@@ -108,13 +108,6 @@
       class="text-center text-caption text-medium-emphasis mb-4"
     >
       Mindestens 2 Spieler für Zufällig verteilen
-    </div>
-
-    <div
-      v-if="selectedPlayers.length >= 2 && selectedPlayers.length % 2 !== 0 && !isAnimating"
-      class="text-center text-caption text-medium-emphasis mb-4"
-    >
-      Team Game braucht eine gerade Spieleranzahl
     </div>
 
     <!-- Result -->
@@ -409,7 +402,7 @@
   }
 
   async function teamGame () {
-    if (selectedPlayers.value.length < 2 || selectedPlayers.value.length % 2 !== 0) return
+    if (selectedPlayers.value.length < 2) return
 
     isAnimating.value = 'teamgame'
     lanes.left = []
