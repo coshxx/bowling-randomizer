@@ -77,6 +77,20 @@
 
     <v-btn
       block
+      class="mb-3 py-4"
+      color="teal-darken-1"
+      :disabled="selectedPlayers.length < 2 || selectedPlayers.length % 2 !== 0"
+      :loading="isAnimating === 'teamgame'"
+      rounded="xl"
+      size="x-large"
+      @click="teamGame"
+    >
+      <v-icon start>mdi-account-group</v-icon>
+      Team Game
+    </v-btn>
+
+    <v-btn
+      block
       class="mb-5 py-4"
       color="amber-darken-2"
       :disabled="selectedPlayers.length === 0"
@@ -94,6 +108,13 @@
       class="text-center text-caption text-medium-emphasis mb-4"
     >
       Mindestens 2 Spieler für Zufällig verteilen
+    </div>
+
+    <div
+      v-if="selectedPlayers.length >= 2 && selectedPlayers.length % 2 !== 0 && !isAnimating"
+      class="text-center text-caption text-medium-emphasis mb-4"
+    >
+      Team Game braucht eine gerade Spieleranzahl
     </div>
 
     <!-- Result -->
@@ -137,6 +158,57 @@
                         <span class="text-caption font-weight-bold text-black">{{ i + 1 }}</span>
                       </v-avatar>
                       <span class="text-body-2 font-weight-medium text-capitalize">{{ player }}</span>
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </TransitionGroup>
+            </v-card-text>
+          </v-card>
+        </template>
+
+        <!-- Team game -->
+        <template v-else-if="lastMode === 'teams'">
+          <v-card color="surface-variant" elevation="0" rounded="xl">
+            <v-card-text class="pa-4">
+              <div class="d-flex align-center justify-center mb-3">
+                <span class="text-h6 mr-2">{{ singleLane === 'left' ? '⬅️' : '➡️' }}</span>
+                <div
+                  class="text-caption font-weight-bold"
+                  :class="singleLane === 'left' ? 'text-blue-lighten-2' : 'text-purple-lighten-2'"
+                >
+                  {{ singleLane === 'left' ? 'LINKE BAHN' : 'RECHTE BAHN' }}
+                </div>
+              </div>
+
+              <TransitionGroup name="player-list" tag="div">
+                <v-card
+                  v-for="(team, i) in activeLaneTeams"
+                  :key="`team-${i}`"
+                  class="mb-3 player-card"
+                  :color="singleLane === 'left' ? 'blue-darken-4' : 'purple-darken-4'"
+                  elevation="0"
+                  rounded="lg"
+                >
+                  <v-card-text class="pa-3">
+                    <div class="d-flex align-center mb-2">
+                      <v-avatar
+                        class="mr-2"
+                        :color="singleLane === 'left' ? 'blue-darken-2' : 'purple-darken-2'"
+                        size="28"
+                      >
+                        <span class="text-caption font-weight-bold text-white">{{ i + 1 }}</span>
+                      </v-avatar>
+                      <span class="text-body-2 font-weight-bold">Team {{ i + 1 }}</span>
+                    </div>
+
+                    <div class="team-members">
+                      <div
+                        v-for="player in team"
+                        :key="player"
+                        class="team-member"
+                      >
+                        <span class="text-body-2 font-weight-medium text-capitalize">{{ player }}</span>
+                      </div>
                     </div>
                   </v-card-text>
                 </v-card>
@@ -219,16 +291,20 @@
 <script lang="ts" setup>
   import { computed, reactive, ref } from 'vue'
 
+  type ActionMode = 'randomize' | 'teamgame' | 'grabgame'
+  type ResultMode = 'split' | 'single' | 'teams' | null
+  type LaneSide = 'left' | 'right'
+
   const defaultPlayers = ['Coach', 'BM', 'Legende', 'Highko', 'El Tomas', 'Doc']
   const allPlayers = ref<string[]>([...defaultPlayers])
   const customPlayers = ref(new Set<string>())
   const newPlayerName = ref('')
 
   const selectedPlayers = ref<string[]>([...defaultPlayers])
-  const isAnimating = ref<'randomize' | 'grabgame' | null>(null)
-  const lastMode = ref<'split' | 'single' | null>(null)
-  const lastAction = ref<'randomize' | 'grabgame' | null>(null)
-  const singleLane = ref<'left' | 'right'>('left')
+  const isAnimating = ref<ActionMode | null>(null)
+  const lastMode = ref<ResultMode>(null)
+  const lastAction = ref<ActionMode | null>(null)
+  const singleLane = ref<LaneSide>('left')
 
   const lanes = reactive<{ left: string[], right: string[] }>({
     left: [],
@@ -238,6 +314,15 @@
   const activeLanePlayers = computed(() =>
     singleLane.value === 'left' ? lanes.left : lanes.right,
   )
+  const activeLaneTeams = computed(() => {
+    const teams: string[][] = []
+
+    for (let i = 0; i < activeLanePlayers.value.length; i += 2) {
+      teams.push(activeLanePlayers.value.slice(i, i + 2))
+    }
+
+    return teams
+  })
 
   function togglePlayer (player: string) {
     const idx = selectedPlayers.value.indexOf(player)
@@ -322,6 +407,29 @@
 
     isAnimating.value = null
   }
+
+  async function teamGame () {
+    if (selectedPlayers.value.length < 2 || selectedPlayers.value.length % 2 !== 0) return
+
+    isAnimating.value = 'teamgame'
+    lanes.left = []
+    lanes.right = []
+
+    await new Promise(r => setTimeout(r, 400))
+
+    const shuffled = shuffle(selectedPlayers.value)
+    lastAction.value = 'teamgame'
+    lastMode.value = 'teams'
+    singleLane.value = Math.random() < 0.5 ? 'left' : 'right'
+
+    if (singleLane.value === 'left') {
+      lanes.left = shuffled
+    } else {
+      lanes.right = shuffled
+    }
+
+    isAnimating.value = null
+  }
 </script>
 
 <style scoped>
@@ -337,6 +445,17 @@
 
 .player-card {
   transition: all 0.3s ease;
+}
+
+.team-members {
+  display: grid;
+  gap: 8px;
+}
+
+.team-member {
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 12px;
+  padding: 10px 12px;
 }
 
 /* slide-up transition */
