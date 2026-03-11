@@ -4,10 +4,12 @@ import type { DrinkType, Player, Session } from '@/types'
 const STORAGE_KEY = 'bowling-recorder-session'
 
 const DEFAULT_DRINK_TYPES: DrinkType[] = [
-  { id: 'bier', name: 'Bier', price: 3.5 },
-  { id: 'wasser', name: 'Wasser', price: 1.5 },
-  { id: 'cola', name: 'Cola', price: 2.5 },
-  { id: 'radler', name: 'Radler', price: 3.0 },
+  { id: 'hefeweizen', name: 'Hefeweizen', price: 4.9 },
+  { id: 'koelsch-04', name: 'Kölsch 0,4', price: 4.2 },
+  { id: 'pils-02', name: 'Pils 0,2', price: 2.2 },
+  { id: 'pils-04', name: 'Pils 0,4', price: 4.2 },
+  { id: 'helles', name: 'Helles', price: 4.9 },
+  { id: 'coke-zero-04', name: 'Coke Zero 0,4', price: 3.9 },
 ]
 
 function loadSession(): Session {
