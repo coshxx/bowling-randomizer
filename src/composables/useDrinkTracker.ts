@@ -16,7 +16,7 @@ function loadSession(): Session {
     if (raw) {
       const parsed: Session = JSON.parse(raw)
       // migrate: ensure all drinkTypes have a price
-      parsed.drinkTypes = parsed.drinkTypes.map(d => ({ price: 0, ...d }))
+      parsed.drinkTypes = parsed.drinkTypes.map(d => ({ ...d, price: d.price ?? 0 }))
       return parsed
     }
   } catch {
