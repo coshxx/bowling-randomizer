@@ -8,27 +8,15 @@
       />
       <v-app-bar-title>
         <v-icon icon="mdi-bowling" class="mr-2" />
-        Bowling Abend
+        <span class="d-none d-sm-inline">Bowling Abend</span>
       </v-app-bar-title>
       <template #append>
         <v-btn icon="mdi-theme-light-dark" @click="$vuetify.theme.cycle()" />
         <template v-if="view === 'tracker'">
-          <v-btn
-            prepend-icon="mdi-glass-cocktail"
-            variant="text"
-            @click="manageDrinksOpen = true"
-          >
-            Posten
-          </v-btn>
-          <v-btn
-            prepend-icon="mdi-account-plus"
-            color="primary"
-            variant="tonal"
-            class="mr-2"
-            @click="addPlayerOpen = true"
-          >
-            Spieler
-          </v-btn>
+          <v-btn icon="mdi-glass-cocktail" variant="text" class="d-sm-none" @click="manageDrinksOpen = true" />
+          <v-btn prepend-icon="mdi-glass-cocktail" variant="text" class="d-none d-sm-flex" @click="manageDrinksOpen = true">Posten</v-btn>
+          <v-btn icon="mdi-account-plus" color="primary" variant="tonal" class="d-sm-none mr-1" @click="addPlayerOpen = true" />
+          <v-btn prepend-icon="mdi-account-plus" color="primary" variant="tonal" class="d-none d-sm-flex mr-2" @click="addPlayerOpen = true">Spieler</v-btn>
         </template>
       </template>
     </v-app-bar>
@@ -196,3 +184,9 @@
     copySnackbar.value = true
   }
 </script>
+
+<style>
+html, body {
+  overflow-x: hidden;
+}
+</style>
