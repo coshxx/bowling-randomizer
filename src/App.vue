@@ -85,6 +85,30 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="bowlingCostOpen" max-width="400" @keydown.enter="confirmBowlingCost">
+      <v-card rounded="lg">
+        <v-card-title class="pa-4 pb-2">Abrechnung erstellen</v-card-title>
+        <v-card-text class="pa-4 pt-0">
+          <div class="text-body-2 mb-3">Wie teuer war Bowling?</div>
+          <v-text-field
+            v-model="bowlingCostInput"
+            variant="outlined"
+            density="compact"
+            hide-details="auto"
+            placeholder="z.B. 43,44 + 12,08"
+            :error-messages="bowlingCostError"
+            autofocus
+            @keydown.enter="confirmBowlingCost"
+          />
+        </v-card-text>
+        <v-card-actions class="pa-4 pt-0">
+          <v-btn variant="text" @click="bowlingCostOpen = false">Abbrechen</v-btn>
+          <v-spacer />
+          <v-btn color="secondary" variant="tonal" @click="confirmBowlingCost">Weiter</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-dialog v-model="abrechnungOpen" max-width="500">
       <v-card rounded="lg">
         <v-card-title class="pa-4 pb-2">Abrechnung</v-card-title>
@@ -143,6 +167,9 @@
   const manageDrinksOpen = ref(false)
   const confirmReset = ref(false)
   const saveSnackbar = ref(false)
+  const bowlingCostOpen = ref(false)
+  const bowlingCostInput = ref('')
+  const bowlingCostError = ref('')
   const abrechnungOpen = ref(false)
   const abrechnungText = ref('')
   const copySnackbar = ref(false)
@@ -162,7 +189,40 @@
     saveSnackbar.value = true
   }
 
+  function evaluateExpression(input: string): number | null {
+    // Replace German decimal commas with dots (e.g. 43,44 → 43.44)
+    const normalized = input.replace(/(\d),(\d)/g, '$1.$2')
+    // Only allow digits, dots, operators, spaces, parentheses
+    if (!/^[\d\s+\-*/.()]+$/.test(normalized)) return null
+    try {
+      // eslint-disable-next-line no-new-func
+      const result = new Function('return ' + normalized)() as unknown
+      if (typeof result !== 'number' || !isFinite(result) || result < 0) return null
+      return result
+    } catch {
+      return null
+    }
+  }
+
   function openAbrechnung() {
+    bowlingCostInput.value = ''
+    bowlingCostError.value = ''
+    bowlingCostOpen.value = true
+  }
+
+  function confirmBowlingCost() {
+    const total = evaluateExpression(bowlingCostInput.value.trim())
+    if (total === null) {
+      bowlingCostError.value = 'Ungültiger Ausdruck'
+      return
+    }
+    bowlingCostOpen.value = false
+    generateAbrechnung(total)
+  }
+
+  function generateAbrechnung(bowlingTotal: number) {
+    const playerCount = players.value.length
+    const bowlingShare = playerCount > 0 ? bowlingTotal / playerCount : 0
     const lines: string[] = []
     for (const player of players.value) {
       lines.push(`${player.name}:`)
@@ -173,6 +233,14 @@
         const formatted = total.toFixed(2).replace('.', ',') + '€'
         lines.push(`  ${formatted} ${drinkType.name} x${count}`)
       }
+      if (bowlingShare > 0) {
+        lines.push(`  ${bowlingShare.toFixed(2).replace('.', ',')}€ Bowling`)
+      }
+      const drinkTotal = drinkTypes.value.reduce((sum, dt) => {
+        return sum + (player.drinks[dt.id] ?? 0) * dt.price
+      }, 0)
+      const playerTotal = drinkTotal + bowlingShare
+      lines.push(`  → Gesamt: ${playerTotal.toFixed(2).replace('.', ',')}€`)
       lines.push('')
     }
     abrechnungText.value = lines.join('\n').trimEnd()
