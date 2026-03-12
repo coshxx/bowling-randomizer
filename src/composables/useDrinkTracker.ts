@@ -46,6 +46,10 @@ function uuid() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36)
 }
 
+function findPlayer(id: string): Player | undefined {
+  return players.value.find(p => p.id === id)
+}
+
 function addPlayer(name: string) {
   players.value.push({ id: uuid(), name, drinks: {} })
 }
@@ -55,13 +59,13 @@ function removePlayer(id: string) {
 }
 
 function increment(playerId: string, drinkTypeId: string) {
-  const player = players.value.find(p => p.id === playerId)
+  const player = findPlayer(playerId)
   if (!player) return
   player.drinks[drinkTypeId] = (player.drinks[drinkTypeId] ?? 0) + 1
 }
 
 function decrement(playerId: string, drinkTypeId: string) {
-  const player = players.value.find(p => p.id === playerId)
+  const player = findPlayer(playerId)
   if (!player) return
   const current = player.drinks[drinkTypeId] ?? 0
   if (current <= 0) return
@@ -70,6 +74,12 @@ function decrement(playerId: string, drinkTypeId: string) {
 
 function addDrinkType(name: string, price: number = 0) {
   drinkTypes.value.push({ id: uuid(), name, price })
+}
+
+function updateDrinkPrice(id: string, price: number) {
+  const drink = drinkTypes.value.find(d => d.id === id)
+  if (!drink) return
+  drink.price = price
 }
 
 function removeDrinkType(id: string) {
@@ -92,6 +102,7 @@ export function useDrinkTracker() {
     increment,
     decrement,
     addDrinkType,
+    updateDrinkPrice,
     removeDrinkType,
     resetSession,
   }

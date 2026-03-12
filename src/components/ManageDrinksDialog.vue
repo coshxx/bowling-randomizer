@@ -20,7 +20,7 @@
             density="compact"
             hide-details
             style="max-width: 100px"
-            @update:model-value="drinkType.price = parseFloat(String($event)) || 0"
+            @update:model-value="updateDrinkPrice(drinkType.id, parseFloat(String($event)) || 0)"
           />
           <v-btn
             icon="mdi-delete-outline"
@@ -83,7 +83,7 @@
 
   const open = defineModel<boolean>({ default: false })
 
-  const { drinkTypes, addDrinkType, removeDrinkType } = useDrinkTracker()
+  const { drinkTypes, addDrinkType, updateDrinkPrice, removeDrinkType } = useDrinkTracker()
   const newName = ref('')
   const newPrice = ref(0)
 

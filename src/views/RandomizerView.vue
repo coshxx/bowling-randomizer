@@ -352,77 +352,37 @@
     return a
   }
 
-  async function randomize () {
-    isAnimating.value = 'randomize'
+  async function runGame (action: ActionMode) {
+    isAnimating.value = action
     lanes.left = []
     lanes.right = []
 
     await new Promise(r => setTimeout(r, 400))
 
     const shuffled = shuffle(selectedPlayers.value)
-    lastAction.value = 'randomize'
+    lastAction.value = action
 
-    if (selectedPlayers.value.length <= 3) {
-      lastMode.value = 'single'
+    if (action === 'randomize' && selectedPlayers.value.length > 3) {
+      lastMode.value = 'split'
+      const half = Math.ceil(shuffled.length / 2)
+      lanes.left = shuffled.slice(0, half)
+      lanes.right = shuffled.slice(half)
+    } else {
+      lastMode.value = action === 'teamgame' ? 'teams' : 'single'
       singleLane.value = Math.random() < 0.5 ? 'left' : 'right'
       if (singleLane.value === 'left') {
         lanes.left = shuffled
       } else {
         lanes.right = shuffled
       }
-    } else {
-      lastMode.value = 'split'
-      const half = Math.ceil(shuffled.length / 2)
-      lanes.left = shuffled.slice(0, half)
-      lanes.right = shuffled.slice(half)
     }
 
     isAnimating.value = null
   }
 
-  async function grabgame () {
-    isAnimating.value = 'grabgame'
-    lanes.left = []
-    lanes.right = []
-
-    await new Promise(r => setTimeout(r, 400))
-
-    const shuffled = shuffle(selectedPlayers.value)
-    lastAction.value = 'grabgame'
-    lastMode.value = 'single'
-    singleLane.value = Math.random() < 0.5 ? 'left' : 'right'
-
-    if (singleLane.value === 'left') {
-      lanes.left = shuffled
-    } else {
-      lanes.right = shuffled
-    }
-
-    isAnimating.value = null
-  }
-
-  async function teamGame () {
-    if (selectedPlayers.value.length < 2) return
-
-    isAnimating.value = 'teamgame'
-    lanes.left = []
-    lanes.right = []
-
-    await new Promise(r => setTimeout(r, 400))
-
-    const shuffled = shuffle(selectedPlayers.value)
-    lastAction.value = 'teamgame'
-    lastMode.value = 'teams'
-    singleLane.value = Math.random() < 0.5 ? 'left' : 'right'
-
-    if (singleLane.value === 'left') {
-      lanes.left = shuffled
-    } else {
-      lanes.right = shuffled
-    }
-
-    isAnimating.value = null
-  }
+  const randomize = () => runGame('randomize')
+  const grabgame = () => runGame('grabgame')
+  const teamGame = () => runGame('teamgame')
 </script>
 
 <style scoped>
