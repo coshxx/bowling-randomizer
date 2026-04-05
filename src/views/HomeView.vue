@@ -123,7 +123,7 @@
           </v-card-text>
         </v-card>
 
-        <v-card rounded="lg" elevation="2" hover @click="$emit('newSession')">
+        <v-card rounded="lg" elevation="2" hover @click="confirmDialog = true">
           <v-card-text class="d-flex align-center pa-5">
             <v-icon icon="mdi-plus-circle-outline" size="40" color="error" class="mr-4" />
             <div>
@@ -137,6 +137,23 @@
       </template>
     </div>
   </v-container>
+
+  <v-dialog v-model="confirmDialog" max-width="380">
+    <v-card rounded="lg">
+      <v-card-title class="pa-5 pb-2">
+        <v-icon color="error" class="mr-2">mdi-alert-circle-outline</v-icon>
+        Neuen Abend anlegen?
+      </v-card-title>
+      <v-card-text class="pa-5 pt-2">
+        Alle Daten des aktuellen Abends (Spieler, Getränke) werden unwiderruflich zurückgesetzt.
+      </v-card-text>
+      <v-card-actions class="pa-4 pt-0 gap-2">
+        <v-spacer />
+        <v-btn rounded="lg" variant="text" @click="confirmDialog = false">Abbrechen</v-btn>
+        <v-btn color="error" rounded="lg" variant="flat" @click="confirmNewSession">Zurücksetzen</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -146,6 +163,13 @@
   const emit = defineEmits<{ newSession: []; continueSession: []; history: []; randomizer: [] }>()
 
   const { players, addPlayer } = useDrinkTracker()
+
+  const confirmDialog = ref(false)
+
+  function confirmNewSession () {
+    confirmDialog.value = false
+    emit('newSession')
+  }
 
   const presetNames = ['Coach', 'BM', 'Legende', 'Highko', 'El Tomas', 'Doc']
   const customNames = ref<string[]>([])

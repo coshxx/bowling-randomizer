@@ -33,14 +33,6 @@
     </v-main>
 
     <v-footer v-if="view === 'tracker' && players.length > 0" elevation="1">
-      <v-btn
-        prepend-icon="mdi-refresh"
-        variant="text"
-        color="error"
-        @click="confirmReset = true"
-      >
-        Session zurücksetzen
-      </v-btn>
       <v-spacer />
       <v-btn
         prepend-icon="mdi-receipt-text-outline"
@@ -62,20 +54,6 @@
     </v-footer>
 
     <ManageDrinksDialog v-model="manageDrinksOpen" />
-
-    <v-dialog v-model="confirmReset" max-width="360">
-      <v-card rounded="lg">
-        <v-card-title class="pa-4 pb-2">Session zurücksetzen?</v-card-title>
-        <v-card-text class="pa-4 pt-0 text-body-2">
-          Alle Spieler und ihre Getränke werden gelöscht. Die Posten bleiben erhalten.
-        </v-card-text>
-        <v-card-actions class="pa-4 pt-0">
-          <v-spacer />
-          <v-btn variant="text" @click="confirmReset = false">Abbrechen</v-btn>
-          <v-btn color="error" variant="tonal" @click="doReset">Zurücksetzen</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
 
     <v-dialog v-model="bowlingCostOpen" max-width="400" @keydown.enter="confirmBowlingCost">
       <v-card rounded="lg">
@@ -155,7 +133,6 @@
 
   const view = ref<View>('home')
   const manageDrinksOpen = ref(false)
-  const confirmReset = ref(false)
   const saveSnackbar = ref(false)
   const bowlingCostOpen = ref(false)
   const bowlingCostInput = ref('')
@@ -166,12 +143,6 @@
 
   function startNewSession() {
     resetSession()
-  }
-
-  function doReset() {
-    resetSession()
-    confirmReset.value = false
-    view.value = 'home'
   }
 
   function saveSession() {
