@@ -10,52 +10,22 @@
     <!-- Player Selection -->
     <v-card class="mb-5" color="surface" elevation="2" rounded="xl">
       <v-card-text class="pa-4">
-        <div class="text-overline text-medium-emphasis mb-3">Spieler auswählen</div>
-        <div class="d-flex flex-wrap gap-2 mb-4">
+        <div class="text-overline text-medium-emphasis mb-3">Wer spielt diese Runde?</div>
+        <div class="d-flex flex-wrap gap-2">
           <v-chip
             v-for="player in allPlayers"
             :key="player"
             class="player-chip"
-            :closable="customPlayers.has(player)"
-            :color="selectedPlayers.includes(player) ? (customPlayers.has(player) ? 'teal' : 'primary') : 'default'"
+            :color="selectedPlayers.includes(player) ? 'primary' : 'default'"
             size="large"
             :variant="selectedPlayers.includes(player) ? 'flat' : 'outlined'"
             @click="togglePlayer(player)"
-            @click:close.stop="removeCustomPlayer(player)"
           >
-            <v-icon v-if="!customPlayers.has(player)" size="16" start>
+            <v-icon size="16" start>
               {{ selectedPlayers.includes(player) ? 'mdi-check-circle' : 'mdi-circle-outline' }}
             </v-icon>
-            <v-icon v-else size="16" start>mdi-account-plus</v-icon>
             {{ player }}
           </v-chip>
-        </div>
-
-        <v-divider class="mb-3" />
-
-        <div class="d-flex gap-2 align-center">
-          <v-text-field
-            v-model="newPlayerName"
-            class="flex-grow-1"
-            density="compact"
-            hide-details
-            maxlength="20"
-            placeholder="Gastspieler hinzufügen…"
-            rounded="lg"
-            variant="outlined"
-            @keyup.enter="addPlayer"
-          />
-          <v-btn
-            color="teal"
-            :disabled="!newPlayerName.trim() || allPlayers.includes(newPlayerName.trim())"
-            icon
-            rounded="lg"
-            size="default"
-            variant="flat"
-            @click="addPlayer"
-          >
-            <v-icon>mdi-plus</v-icon>
-          </v-btn>
         </div>
       </v-card-text>
     </v-card>
@@ -283,17 +253,16 @@
 
 <script lang="ts" setup>
   import { computed, reactive, ref } from 'vue'
+  import { useDrinkTracker } from '@/composables/useDrinkTracker'
 
   type ActionMode = 'randomize' | 'teamgame' | 'grabgame'
   type ResultMode = 'split' | 'single' | 'teams' | null
   type LaneSide = 'left' | 'right'
 
-  const defaultPlayers = ['Coach', 'BM', 'Legende', 'Highko', 'El Tomas', 'Doc']
-  const allPlayers = ref<string[]>([...defaultPlayers])
-  const customPlayers = ref(new Set<string>())
-  const newPlayerName = ref('')
+  const { players } = useDrinkTracker()
+  const allPlayers = computed(() => players.value.map(p => p.name))
 
-  const selectedPlayers = ref<string[]>([...defaultPlayers])
+  const selectedPlayers = ref<string[]>(players.value.map(p => p.name))
   const isAnimating = ref<ActionMode | null>(null)
   const lastMode = ref<ResultMode>(null)
   const lastAction = ref<ActionMode | null>(null)
@@ -324,21 +293,6 @@
     } else {
       selectedPlayers.value.splice(idx, 1)
     }
-  }
-
-  function addPlayer () {
-    const name = newPlayerName.value.trim()
-    if (!name || allPlayers.value.includes(name)) return
-    allPlayers.value.push(name)
-    customPlayers.value.add(name)
-    selectedPlayers.value.push(name)
-    newPlayerName.value = ''
-  }
-
-  function removeCustomPlayer (player: string) {
-    allPlayers.value = allPlayers.value.filter(p => p !== player)
-    customPlayers.value.delete(player)
-    selectedPlayers.value = selectedPlayers.value.filter(p => p !== player)
   }
 
   function shuffle<T> (arr: T[]): T[] {

@@ -19,16 +19,7 @@
 
     <div v-else class="d-flex flex-column align-center justify-center" style="min-height: 60vh">
       <v-icon icon="mdi-bowling" size="64" color="primary" class="mb-4" />
-      <p class="text-h6 text-medium-emphasis">Noch keine Spieler</p>
-      <p class="text-body-2 text-disabled mb-4">Füge Spieler hinzu, um den Abend zu starten</p>
-      <v-btn
-        prepend-icon="mdi-account-plus"
-        color="primary"
-        variant="tonal"
-        @click="$emit('openAddPlayer')"
-      >
-        Ersten Spieler hinzufügen
-      </v-btn>
+      <p class="text-h6 text-medium-emphasis">Keine Spieler</p>
     </div>
   </v-container>
 </template>
@@ -36,8 +27,6 @@
 <script lang="ts" setup>
   import { useDrinkTracker } from '@/composables/useDrinkTracker'
   import PlayerCard from '@/components/PlayerCard.vue'
-
-  defineEmits<{ openAddPlayer: [] }>()
 
   const { players, drinkTypes, removePlayer } = useDrinkTracker()
 </script>

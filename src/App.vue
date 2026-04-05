@@ -15,8 +15,6 @@
         <template v-if="view === 'tracker'">
           <v-btn icon="mdi-glass-cocktail" variant="text" class="d-sm-none" @click="manageDrinksOpen = true" />
           <v-btn prepend-icon="mdi-glass-cocktail" variant="text" class="d-none d-sm-flex" @click="manageDrinksOpen = true">Posten</v-btn>
-          <v-btn icon="mdi-account-plus" color="primary" variant="tonal" class="d-sm-none mr-1" @click="addPlayerOpen = true" />
-          <v-btn prepend-icon="mdi-account-plus" color="primary" variant="tonal" class="d-none d-sm-flex mr-2" @click="addPlayerOpen = true">Spieler</v-btn>
         </template>
       </template>
     </v-app-bar>
@@ -24,17 +22,12 @@
     <v-main>
       <HomeView
         v-if="view === 'home'"
-        :has-active-session="players.length > 0"
-        :player-count="players.length"
         @new-session="startNewSession"
         @continue-session="view = 'tracker'"
         @history="view = 'history'"
         @randomizer="view = 'randomizer'"
       />
-      <TrackerView
-        v-else-if="view === 'tracker'"
-        @open-add-player="addPlayerOpen = true"
-      />
+      <TrackerView v-else-if="view === 'tracker'" />
       <HistoryView v-else-if="view === 'history'" />
       <RandomizerView v-else-if="view === 'randomizer'" />
     </v-main>
@@ -68,7 +61,6 @@
       </v-btn>
     </v-footer>
 
-    <AddPlayerDialog v-model="addPlayerOpen" />
     <ManageDrinksDialog v-model="manageDrinksOpen" />
 
     <v-dialog v-model="confirmReset" max-width="360">
@@ -151,7 +143,6 @@
 <script lang="ts" setup>
   import { ref } from 'vue'
   import { useDrinkTracker } from '@/composables/useDrinkTracker'
-  import AddPlayerDialog from '@/components/AddPlayerDialog.vue'
   import ManageDrinksDialog from '@/components/ManageDrinksDialog.vue'
   import HomeView from '@/views/HomeView.vue'
   import TrackerView from '@/views/TrackerView.vue'
@@ -163,7 +154,6 @@
   const { players, drinkTypes, resetSession } = useDrinkTracker()
 
   const view = ref<View>('home')
-  const addPlayerOpen = ref(false)
   const manageDrinksOpen = ref(false)
   const confirmReset = ref(false)
   const saveSnackbar = ref(false)
@@ -176,12 +166,12 @@
 
   function startNewSession() {
     resetSession()
-    view.value = 'tracker'
   }
 
   function doReset() {
     resetSession()
     confirmReset.value = false
+    view.value = 'home'
   }
 
   function saveSession() {
